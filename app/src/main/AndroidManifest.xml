@@ -17,6 +17,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.android.nazmy.sunny.app.DetailActivity"
+            android:label="@string/title_activity_detail"
+            android:parentActivityName="com.android.nazmy.sunny.app.MainActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.android.nazmy.sunny.app.MainActivity" />
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
