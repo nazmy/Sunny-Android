@@ -1,5 +1,9 @@
 package com.android.nazmy.sunny.app;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -52,9 +56,26 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            return true;
+          startActivity(new Intent(this,SettingsActivity.class));
+        }
+        if (id == R.id.action_map) {
+            showUserPreferredLocation();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showUserPreferredLocation() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String geo = sharedPreferences.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_defaultValue));
+
+        Uri uri = new Uri.Builder().appendPath("geo:0,0?q=").appendPath(geo).build();
+        Uri geoLocation = uri.parse("geo:0,0?").buildUpon().appendQueryParameter("q", geo).build();
+
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+        mapIntent.setData(geoLocation);
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+        }
     }
 
 
