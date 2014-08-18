@@ -85,20 +85,10 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        String[] forecastArray = {
-                "Today - Sunny - 88/63",
-                "Tomorrow - Foggy - 70/46",
-                "Weds - Cloudy - 72/63",
-                "Thurs - Rainy - 64/51",
-                "Fri - Foggy - 70/46",
-                "Sat - Sunny - 76/68"
-        };
-
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(forecastArray));
         mForecastAdapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.list_item_forecast,
                 R.id.list_item_forecast_textview,
-                weekForecast);
+                new ArrayList<String>());
 
         ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         forecastListView.setAdapter(mForecastAdapter);
