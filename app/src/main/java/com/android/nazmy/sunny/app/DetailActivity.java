@@ -47,6 +47,7 @@ public class DetailActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             startActivity(new Intent(this,SettingsActivity.class));
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -82,9 +83,11 @@ public class DetailActivity extends ActionBarActivity {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mForecastStr + FORECAST_SHARE_HASHTAG);
+            shareIntent.putExtra(Intent.EXTRA_TEXT,
+                    mForecastStr + FORECAST_SHARE_HASHTAG);
             return shareIntent;
         }
+
 
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -99,6 +102,16 @@ public class DetailActivity extends ActionBarActivity {
             } else {
                 Log.d(LOG_TAG, "Share Action Provider is null");
             }
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            int id = item.getItemId();
+            if (id == R.id.menu_item_share) {
+                Intent shareIntent = createShareForecastIntent();
+                startActivity(shareIntent);
+            }
+            return super.onOptionsItemSelected(item);
         }
     }
 }
