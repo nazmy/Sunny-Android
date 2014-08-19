@@ -48,6 +48,9 @@ public class ForecastFragment extends Fragment {
 
     private  ArrayAdapter<String> mForecastAdapter;
 
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+
+
     public ForecastFragment() {
         // Required empty public constructor
     }
@@ -56,12 +59,38 @@ public class ForecastFragment extends Fragment {
     public void onStart() {
         super.onStart();
         updateWeather();
+        Log.d(LOG_TAG, "Application onStart()");
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Log.d(LOG_TAG, "Application onCreate()");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(LOG_TAG, "Application onResume()");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(LOG_TAG, "Application onPause()");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(LOG_TAG, "Application onStop()");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(LOG_TAG, "Application onCreate()");
     }
 
     @Override
