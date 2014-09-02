@@ -33,6 +33,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.android.nazmy.sunny.app.MainActivity" />
         </activity>
+        <provider
+            android:authorities="com.android.nazmy.sunny.app"
+            android:name=".data.WeatherProvider"/>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
