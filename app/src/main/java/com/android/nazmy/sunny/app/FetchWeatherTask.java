@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.channels.CancelledKeyException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
@@ -206,6 +207,12 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
             String highAndLow = formatHighLows(high, low);
             String day = getReadableDateString(dateTime);
             resultStrs[i] = day + " - " + description + " - " + highAndLow;
+        }
+        if (cVVector.size() > 0) {
+            ContentValues[] cvArrays = new ContentValues[cVVector.size()];
+            cVVector.toArray(cvArrays);
+            int rowsInserted= mContext.getContentResolver().bulkInsert(WeatherEntry.CONTENT_URI, cvArrays);
+            Log.v(LOG_TAG, "inserted " + rowsInserted + " rows of weather data");
         }
         return resultStrs;
     }
