@@ -40,14 +40,12 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-    private ArrayAdapter<String> mForecastAdapter;
     private final Context mContext;
 
     private boolean DEBUG = true;
 
-    public FetchWeatherTask(Context context, ArrayAdapter<String> forecastAdapter) {
+    public FetchWeatherTask(Context context) {
         mContext = context;
-        mForecastAdapter = forecastAdapter;
     }
 
 
@@ -340,16 +338,6 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
         // This will only happen if there was an error getting or parsing the forecast.
         return null;
 
-    }
-
-    @Override
-    protected void onPostExecute(String[] result) {
-        if (result != null) {
-            mForecastAdapter.clear();
-            for (String dayForecastStr : result) {
-                mForecastAdapter.add(dayForecastStr);
-            }
-        }
     }
 
     /**
