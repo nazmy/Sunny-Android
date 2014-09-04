@@ -137,8 +137,8 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
 
         // Insert the location into the database.
         // The function referenced here is not yet implemented, so we've commented it out for now.
-//        long locationID = insertLocationInDatabase(
-//                locationSetting, cityName, cityLatitude, cityLongitude);
+        long locationID = insertLocationInDatabase(
+            locationSetting, cityName, cityLatitude, cityLongitude);
 
 
 
@@ -292,7 +292,7 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
      * @param lon the longitude of the city
      * @return the row ID of the added location.
      */
-    private long addLocation(String locationSetting, String cityName, double lat, double lon) {
+    private long insertLocationInDatabase(String locationSetting, String cityName, double lat, double lon) {
 
         Log.v(LOG_TAG, "inserting " + cityName + ", with coord: " + lat + ", " + lon);
 
