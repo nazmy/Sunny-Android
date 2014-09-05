@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.util.StringBuilderPrinter;
+import android.view.View;
 import android.widget.ArrayAdapter;
 
 import com.android.nazmy.sunny.app.data.WeatherContract;
@@ -36,7 +37,7 @@ import java.util.Vector;
 /**
  * Created by nazmy on 9/4/14.
  */
-public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
+public class FetchWeatherTask extends AsyncTask<String,Void,Void> {
 
     private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
@@ -49,40 +50,6 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
     }
 
 
-    /* The date/time conversion code is going to be moved outside the asynctask later,
-    * so for convenience we're breaking it out into its own method now.
-    */
-    private String getReadableDateString(long time){
-        // Because the API returns a unix timestamp (measured in seconds),
-        // it must be converted to milliseconds in order to be converted to valid date.
-        Date date = new Date(time * 1000);
-        SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
-        return format.format(date).toString();
-    }
-
-    /**
-     * Prepare the weather high/lows for presentation.
-     */
-    private String formatHighLows(double high, double low) {
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String unitType = sharedPreferences.getString(mContext.getString(R.string.pref_unit_key), mContext.getString(R.string.pref_unit_defaultValue));
-
-        if (unitType.equalsIgnoreCase(mContext.getString(R.string.pref_unit_imperial))) {
-            high = (high * 1.8) + 32;
-            low = (low * 1.8) + 32;
-        } else if (!unitType.equalsIgnoreCase(mContext.getString(R.string.pref_unit_defaultValue))) {
-            Log.e(LOG_TAG, "Unit type not found : " + unitType);
-        }
-
-        // For presentation, assume the user doesn't care about tenths of a degree.
-        long roundedHigh = Math.round(high);
-        long roundedLow = Math.round(low);
-
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
-    }
-
     /**
      * Take the String representing the complete forecast in JSON Format and
      * pull out the data we need to construct the Strings needed for the wireframes.
@@ -98,7 +65,7 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
      * Fortunately parsing is easy:  constructor takes the JSON string and converts it
      * into an Object hierarchy for us.
      */
-    private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays, String locationSetting)
+    private void getWeatherDataFromJson(String forecastJsonStr, int numDays, String locationSetting)
             throws JSONException {
 
         // Location information
@@ -205,45 +172,21 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
 
             cVVector.add(weatherValues);
 
-            String highAndLow = formatHighLows(high, low);
+            /*String highAndLow = formatHighLows(high, low);
             String day = getReadableDateString(dateTime);
-            resultStrs[i] = day + " - " + description + " - " + highAndLow;
+            resultStrs[i] = day + " - " + description + " - " + highAndLow;*/
         }
+
         if (cVVector.size() > 0) {
-            ContentValues[] cvArrays = new ContentValues[cVVector.size()];
-            cVVector.toArray(cvArrays);
-            int rowsInserted= mContext.getContentResolver().bulkInsert(WeatherEntry.CONTENT_URI, cvArrays);
-            Log.v(LOG_TAG, "inserted " + rowsInserted + " rows of weather data");
-
-            // Use a DEBUG variable to gate whether or not you do this, so you can easily
-            // turn it on and off, and so that it's easy to see what you can rip out if
-            // you ever want to remove it.
-            if (DEBUG) {
-                Cursor weatherCursor = mContext.getContentResolver().query(
-                        WeatherEntry.CONTENT_URI,
-                        null,
-                        null,
-                        null,
-                        null
-                );
-
-                if (weatherCursor.moveToFirst()) {
-                    ContentValues resultValues = new ContentValues();
-                    DatabaseUtils.cursorRowToContentValues(weatherCursor, resultValues);
-                    Log.v(LOG_TAG, "Query succeeded! **********");
-                    for (String key : resultValues.keySet()) {
-                        Log.v(LOG_TAG, key + ": " + resultValues.getAsString(key));
-                    }
-                } else {
-                    Log.v(LOG_TAG, "Query failed! :( **********");
-                }
-            }
+            ContentValues[] cvArray = new ContentValues[cVVector.size()];
+            cVVector.toArray(cvArray);
+            mContext.getContentResolver().bulkInsert(WeatherEntry.CONTENT_URI, cvArray);
         }
-        return resultStrs;
+
     }
 
     @Override
-    protected String[] doInBackground(String... params) {
+    protected Void doInBackground(String... params) {
 
         // If there's no zip code, there's nothing to look up.  Verify size of params.
         if (params.length == 0) {
@@ -329,7 +272,7 @@ public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
         }
 
         try {
-            return getWeatherDataFromJson(forecastJsonStr, numDays,locationSetting);
+             getWeatherDataFromJson(forecastJsonStr, numDays,locationSetting);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
