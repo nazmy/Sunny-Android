@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.android.nazmy.sunny.app.data.WeatherContract;
 import com.android.nazmy.sunny.app.data.WeatherContract.WeatherEntry;
@@ -36,7 +37,12 @@ import java.util.Date;
  * A simple {@link Fragment} subclass.
  *
  */
+/**
+ * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
+ */
 public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private SimpleCursorAdapter mForecastAdapter;
 
     private static final int FORECAST_LOADER = 0;
     private String mLocation;
@@ -58,6 +64,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             LocationEntry.COLUMN_LOCATION_SETTING
     };
 
+
     // These indices are tied to FORECAST_COLUMNS.  If FORECAST_COLUMNS changes, these
     // must change.
     public static final int COL_WEATHER_ID = 0;
@@ -67,79 +74,37 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public static final int COL_WEATHER_MIN_TEMP = 4;
     public static final int COL_LOCATION_SETTING = 5;
 
-    private SimpleCursorAdapter mForecastAdapter;
-
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
-
     public ForecastFragment() {
-        // Required empty public constructor
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateWeather();
-        Log.d(LOG_TAG, "Application onStart()");
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
-        Log.d(LOG_TAG, "Application onCreate()");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(LOG_TAG, "Application onResume()");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(LOG_TAG, "Application onPause()");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(LOG_TAG, "Application onStop()");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(LOG_TAG, "Application onCreate()");
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forecastfragment,menu);
+        inflater.inflate(R.menu.forecastfragment, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             updateWeather();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // The SimpleCursorAdapter will take data from the database through the
         // Loader and use it to populate the ListView it's attached to.
@@ -162,26 +127,62 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 0
         );
 
-
-        ListView forecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        forecastListView.setAdapter(mForecastAdapter);
-
-
-        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mForecastAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
-                startActivity(intent);
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                boolean isMetric = Utility.isMetric(getActivity());
+                switch (columnIndex) {
+                    case COL_WEATHER_MAX_TEMP:
+                    case COL_WEATHER_MIN_TEMP: {
+                        // we have to do some formatting and possibly a conversion
+                        ((TextView) view).setText(Utility.formatTemperature(
+                                cursor.getDouble(columnIndex), isMetric));
+                        return true;
+                    }
+                    case COL_WEATHER_DATE: {
+                        String dateString = cursor.getString(columnIndex);
+                        TextView dateView = (TextView) view;
+                        dateView.setText(Utility.formatDate(dateString));
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
 
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        // Get a reference to the ListView, and attach this adapter to it.
+        ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        listView.setAdapter(mForecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, "placeholder");
+                startActivity(intent);
             }
         });
 
         return rootView;
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+        super.onActivityCreated(savedInstanceState);
+    }
+
     private void updateWeather() {
         String location = Utility.getPreferredLocation(getActivity());
         new FetchWeatherTask(getActivity()).execute(location);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     @Override
@@ -216,12 +217,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mForecastAdapter.swapCursor(data);
-
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mForecastAdapter.swapCursor(null);
-
     }
 }
