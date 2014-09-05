@@ -88,7 +88,7 @@ public class WeatherProvider extends ContentProvider {
         }
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                null,
+                projection,
                 selection,
                 selectionArgs,
                 null,
@@ -101,7 +101,7 @@ public class WeatherProvider extends ContentProvider {
         String startDate = WeatherContract.WeatherEntry.getStartDateFromUri(uri);
 
         return sWeatherByLocationSettingQueryBuilder.query(mOpenHelper.getReadableDatabase(),
-                null,
+                projection,
                 sLocationSettingWithStartDateSelection,
                 new String[]{locationSetting, startDate},
                 null,
