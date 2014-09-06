@@ -5,7 +5,7 @@
 
     <string name="pref_location_key">location</string>
     <string name="pref_location_title" translatable="false">Location</string>
-    <string name="pref_location_defaultValue">90934</string>
+    <string name="pref_location_defaultValue">90904</string>
     <string name="pref_unit_key">unit</string>
     <string name="pref_unit_title">Unit</string>
     <string name="pref_unit_defaultValue">@string/pref_unit_metric</string>
@@ -18,8 +18,8 @@
         <item>@string/pref_unit_imperial</item>
     </string-array>
     <string-array name="pref_unit_list_values">
-        <item>metric</item>
-        <item>imperial</item>
+        <item>Metric</item>
+        <item>Imperial</item>
     </string-array>
 
 </resources>
