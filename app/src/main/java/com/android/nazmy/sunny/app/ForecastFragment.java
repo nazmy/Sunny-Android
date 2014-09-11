@@ -49,7 +49,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     // For the forecast view we're showing only a small subset of the stored data.
     // Specify the columns we need.
-    private static final String[] FORECAST_COLUMNS = {
+    public static final String[] FORECAST_COLUMNS = {
             // In this case the id needs to be fully qualified with a table name, since
             // the content provider joins the location & weather tables in the background
             // (both have an _id column)
@@ -163,13 +163,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                 Cursor clickedCursor = adapter.getCursor();
                 if (clickedCursor != null && clickedCursor.moveToPosition(position)) {
                     boolean isMetric = Utility.isMetric(getActivity());
-                    String forecast = String.format("%s - %s - %s/%s",
-                            Utility.formatDate(clickedCursor.getString(COL_WEATHER_DATE)),
-                            clickedCursor.getString(COL_WEATHER_DESC),
-                            Utility.formatTemperature(clickedCursor.getDouble(COL_WEATHER_MAX_TEMP), isMetric),
-                            Utility.formatTemperature(clickedCursor.getDouble(COL_WEATHER_MIN_TEMP), isMetric));
+                    String weatherDate = clickedCursor.getString(COL_WEATHER_DATE);
                     Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .putExtra(Intent.EXTRA_TEXT, forecast);
+                            .putExtra(Intent.EXTRA_TEXT, weatherDate);
                     startActivity(intent);
                 }
             }
